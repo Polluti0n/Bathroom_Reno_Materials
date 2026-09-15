@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bathroom Restoration - Materials & Tile Layout Planner</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Alpine.js CDN -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    @media print {
+      .no-print { display: none !important; }
+      .print-break-inside-avoid { break-inside: avoid; }
+      body { background: white !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen pb-20" x-data="estimatorApp()" x-init="initApp()">
+
+  <!-- Sticky Top Navigation Bar -->
+  <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="bg-blue-600 p-2 rounded-lg text-white shadow-inner">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+            Bathroom Restoration & Surround Planner
+            <span class="text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full uppercase tracking-wider">Edmonds, WA (10.7% Tax)</span>
+          </h1>
+          <p class="text-xs text-slate-400">Interactive BOM • 3-Wall Tile Pattern Elevation Generator</p>
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="flex items-center gap-2 flex-wrap no-print">
+        <a href="#tile-planner-section" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+          Tile Layout Tool
+        </a>
+        <button @click="openNewItemModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg shadow transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+          Add Line Item
+        </button>
+        <button @click="window.print()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg border border-slate-700 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+          Print / PDF
+        </button>
+        <button @click="resetToDefaults()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 text-xs font-medium rounded-lg border border-rose-800/40 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+          Reset
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-8">
+
+    <!-- KPI / Overview Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Standard Subtotal -->
+      <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Material Subtotal</span>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span class="text-2xl font-bold text-slate-800" x-text="formatCurrency(calculateSubtotal())"></span>
+          <span class="text-xs text-slate-500" x-text="items.length + ' line items'"></span>
+        </div>
+      </div>
+
+      <!-- Sales Tax Configuration -->
+      <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Sales Tax Rate</span>
+          <span class="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold">WA Rate</span>
+        </div>
+        <div class="mt-2 flex items-center justify-between gap-2">
+          <div class="relative w-28">
+            <input 
+              type="number" 
+              step="0.01" 
+              x-model.number="taxRate" 
+              @input="saveToStorage()" 
+              class="w-full pl-2 pr-6 py-1 text-sm font-bold border rounded-lg border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+            <span class="absolute right-2 top-1 text-slate-400 font-bold text-xs">%</span>
+          </div>
+          <span class="text-base font-bold text-slate-700" x-text="formatCurrency(calculateTax())"></span>
+        </div>
+      </div>
+
+      <!-- Alternates -->
+      <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Alternates</span>
+          <span class="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-medium" x-text="alternates.filter(a => a.selected).length + ' Active'"></span>
+        </div>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span class="text-2xl font-bold text-amber-700" x-text="formatCurrency(calculateAlternatesSubtotal())"></span>
+          <span class="text-xs text-slate-400">Toggled into Total</span>
+        </div>
+      </div>
+
+      <!-- Grand Total -->
+      <div class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-xl p-4 shadow-sm flex flex-col justify-between">
+        <span class="text-xs font-semibold uppercase tracking-wider text-indigo-300">Grand Total (Tax Incl.)</span>
+        <div class="mt-2 flex items-baseline justify-between">
+          <span class="text-2xl font-black text-white" x-text="formatCurrency(calculateGrandTotal())"></span>
+          <span class="text-[10px] bg-indigo-500/30 text-indigo-200 px-2 py-0.5 rounded">All-inclusive</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- NEW INTERACTIVE TILE SURROUND PLANNER & PATTERN GENERATOR TOOL -->
+    <!-- ================================================================= -->
+    <section id="tile-planner-section" class="bg-white rounded-2xl border-2 border-indigo-200 shadow-md overflow-hidden print-break-inside-avoid">
+      <div class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 px-6 py-4 text-white flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center space-x-3">
+          <div class="bg-indigo-500/30 p-2.5 rounded-xl border border-indigo-400/30">
+            <svg class="w-6 h-6 text-indigo-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              3-Wall Alcove Tile Surround Pattern & Layout Generator
+              <span class="text-[11px] font-normal bg-indigo-500 text-white px-2 py-0.5 rounded">Visual Elevation</span>
+            </h2>
+            <p class="text-xs text-indigo-200">Simulate patterns across Left, Back, and Right walls, preview the LED niche cutout, and auto-sync quantities.</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 no-print">
+          <button @click="applyCalculatedSqftToBOM()" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg shadow transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Sync Sq Ft to Material List (<span x-text="calcTotalTileSqFtWithWaste() + ' sq ft'"></span>)
+          </button>
+        </div>
+      </div>
+
+      <!-- Layout Controls Grid -->
+      <div class="p-6 bg-slate-50 border-b border-slate-200 space-y-6">
+        
+        <!-- Row 1: Tile Specs & Pattern Selection -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 text-xs">
+          <!-- Tile Preset -->
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Tile Dimensions Preset</label>
+            <select x-model="tilePreset" @change="applyTilePreset()" class="w-full bg-white border border-slate-300 rounded-lg p-2 font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              <option value="custom">Custom Dimensions</option>
+              <option value="4x12">4" x 12" (Breeze Blanco III)</option>
+              <option value="3x6">3" x 6" (Classic Subway)</option>
+              <option value="12x24">12" x 24" (Modern Large Format)</option>
+              <option value="4x16">4" x 16" (Extended Subway)</option>
+              <option value="6x18">6" x 18" (Mid-Format Tile)</option>
+              <option value="8x8">8" x 8" (Square Tile)</option>
+            </select>
+          </div>
+
+          <!-- Tile Width -->
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Tile Width (Inches)</label>
+            <input type="number" step="0.125" min="1" max="60" x-model.number="tileWidth" @input="tilePreset='custom'" class="w-full bg-white border border-slate-300 rounded-lg p-2 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+          </div>
+
+          <!-- Tile Height -->
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Tile Height (Inches)</label>
+            <input type="number" step="0.125" min="1" max="60" x-model.number="tileHeight" @input="tilePreset='custom'" class="w-full bg-white border border-slate-300 rounded-lg p-2 font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+          </div>
+
+          <!-- Grout Width -->
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Grout Joint</label>
+            <select x-model.number="groutWidth" class="w-full bg-white border border-slate-300 rounded-lg p-2 font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              <option :value="0.0625">1/16" (Tight joint)</option>
+              <option :value="0.125">1/8" (Standard recommendation)</option>
+              <option :value="0.1875">3/16" (Rustic/wide joint)</option>
+              <option :value="0.25">1/4" (Wide)</option>
+            </select>
+          </div>
+
+          <!-- Pattern Selection -->
+          <div>
+            <label class="block font-bold text-indigo-900 mb-1">Tile Layout Pattern</label>
+            <select x-model="pattern" class="w-full bg-indigo-50 border-2 border-indigo-400 rounded-lg p-2 font-bold text-indigo-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              <option value="horizontal-running-50">Horizontal Running Bond (50% Brick)</option>
+              <option value="horizontal-running-33">Horizontal 1/3 Offset (33% Stagger)</option>
+              <option value="horizontal-stacked">Horizontal Stacked (Modern Grid)</option>
+              <option value="vertical-stacked">Vertical Stacked (Vertical Grid)</option>
+              <option value="vertical-running-50">Vertical Running Bond (50% Offset)</option>
+              <option value="herringbone-90">Herringbone (90° Interlocking)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Row 2: Dimensions of 3 Walls & Niche -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 text-xs pt-3 border-t border-slate-200">
+          
+          <!-- Left Wall -->
+          <div class="bg-white p-3 rounded-xl border border-slate-200">
+            <span class="block font-bold text-slate-800 mb-1 flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-sky-500"></span> Left Wall (Inches)
+            </span>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <span class="text-[10px] text-slate-400 font-semibold">Width</span>
+                <input type="number" step="1" x-model.number="leftWallWidth" class="w-full border border-slate-300 rounded p-1 text-center font-bold" />
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-400 font-semibold">Height</span>
+                <input type="number" step="1" x-model.number="leftWallHeight" class="w-full border border-slate-300 rounded p-1 text-center font-bold" />
+              </div>
+            </div>
+            <div class="text-[10px] text-slate-500 mt-1" x-text="calcWallSqFt(leftWallWidth, leftWallHeight) + ' sq ft'"></div>
+          </div>
+
+          <!-- Back Wall (Main Alcove Wall) -->
+          <div class="bg-white p-3 rounded-xl border border-slate-200">
+            <span class="block font-bold text-slate-800 mb-1 flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-indigo-500"></span> Back Wall (Inches)
+            </span>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <span class="text-[10px] text-slate-400 font-semibold">Width</span>
+                <input type="number" step="1" x-model.number="backWallWidth" class="w-full border border-slate-300 rounded p-1 text-center font-bold" />
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-400 font-semibold">Height</span>
+                <input type="number" step="1" x-model.number="backWallHeight" class="w-full border border-slate-300 rounded p-1 text-center font-bold" />
+              </div>
+            </div>
+            <div class="text-[10px] text-slate-500 mt-1" x-text="calcWallSqFt(backWallWidth, backWallHeight) + ' sq ft'"></div>
+          </div>
+
+          <!-- Right Wall -->
+          <div class="bg-white p-3 rounded-xl border border-slate-200">
+            <span class="block font-bold text-slate-800 mb-1 flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-sky-500"></span> Right Wall (Inches)
+            </span>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <span class="text-[10px] text-slate-400 font-semibold">Width</span>
+                <input type="number" step="1" x-model.number="rightWallWidth" class="w-full border border-slate-300 rounded p-1 text-center font-bold" />
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-400 font-semibold">Height</span>
+                <input type="number" step="1" x-model.number="rightWallHeight" class="w-full border border-slate-300 rounded p-1 text-center font-bold" />
+              </div>
+            </div>
+            <div class="text-[10px] text-slate-500 mt-1" x-text="calcWallSqFt(rightWallWidth, rightWallHeight) + ' sq ft'"></div>
+          </div>
+
+          <!-- Kerdi LED Niche Setup -->
+          <div class="bg-white p-3 rounded-xl border border-amber-300 bg-amber-50/40">
+            <span class="block font-bold text-amber-900 mb-1 flex items-center justify-between">
+              <span>Back Niche (28"×10")</span>
+              <input type="checkbox" x-model="nicheEnabled" class="rounded text-amber-600" />
+            </span>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <span class="text-[10px] text-amber-800 font-semibold">Height from Tub</span>
+                <input type="number" step="1" x-model.number="nicheBottomY" :disabled="!nicheEnabled" class="w-full border border-amber-300 rounded p-1 text-center font-bold bg-white" />
+              </div>
+              <div>
+                <span class="text-[10px] text-amber-800 font-semibold">Left Margin</span>
+                <input type="number" step="1" x-model.number="nicheLeftX" :disabled="!nicheEnabled" class="w-full border border-amber-300 rounded p-1 text-center font-bold bg-white" />
+              </div>
+            </div>
+            <div class="text-[10px] text-amber-700 mt-1">SNLT LED Cutout & Mosaic</div>
+          </div>
+
+          <!-- Waste Factor & Layout Alignment -->
+          <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between">
+            <div>
+              <span class="block font-bold text-slate-800 mb-1">Waste Factor & Cut Align</span>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <span class="text-[10px] text-slate-400 font-semibold">Waste %</span>
+                  <select x-model.number="wastePercent" class="w-full border border-slate-300 rounded p-1 font-bold">
+                    <option :value="10">10%</option>
+                    <option :value="15">15% (Rec.)</option>
+                    <option :value="20">20% (Herringbone)</option>
+                  </select>
+                </div>
+                <div>
+                  <span class="text-[10px] text-slate-400 font-semibold">Horizontal Alignment</span>
+                  <select x-model="layoutAlignX" class="w-full border border-slate-300 rounded p-1 font-bold text-xs">
+                    <option value="center">Center</option>
+                    <option value="left">Left</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="text-[10px] text-slate-500 mt-1">
+              Total Area: <strong class="text-slate-800" x-text="calcGrossWallSqFt() + ' sq ft'"></strong>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Visual 3-Wall Elevation Layout Preview -->
+      <div class="p-6 bg-slate-900 text-white space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Panoramic Elevation View</span>
+            <div class="flex items-center gap-4 text-xs text-slate-400">
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-slate-200 border border-slate-400 rounded-xs inline-block"></span> Main Field Tile</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-amber-400 border border-amber-600 rounded-xs inline-block"></span> Kerdi LED Niche (28"x10")</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-1 bg-red-400 inline-block"></span> Corner Intersection Seams</span>
+            </div>
+          </div>
+
+          <div class="text-xs font-mono text-slate-300 bg-slate-800 px-3 py-1 rounded-lg border border-slate-700">
+            Tile: <span class="text-indigo-300 font-bold" x-text="tileWidth + '″ × ' + tileHeight + '″'"></span> | Pattern: <span class="text-emerald-300 font-bold" x-text="formatPatternName(pattern)"></span>
+          </div>
+        </div>
+
+        <!-- SVG Container for the 3 Walls -->
+        <div class="w-full overflow-x-auto bg-slate-950 p-4 rounded-xl border border-slate-800">
+          <div class="min-w-[800px] flex flex-col items-center">
+            
+            <!-- Wall Labels Header -->
+            <div class="w-full grid grid-cols-12 gap-2 text-center text-xs font-bold text-slate-400 mb-2">
+              <div class="col-span-3 text-sky-400" x-text="'LEFT WALL (' + leftWallWidth + '″ × ' + leftWallHeight + '″)'"></div>
+              <div class="col-span-6 text-indigo-400" x-text="'BACK ALCOVE WALL (' + backWallWidth + '″ × ' + backWallHeight + '″)'"></div>
+              <div class="col-span-3 text-sky-400" x-text="'RIGHT WALL (' + rightWallWidth + '″ × ' + rightWallHeight + '″)'"></div>
+            </div>
+
+            <!-- Dynamic SVG Elevation Render -->
+            <svg 
+              :viewBox="`0 0 ${leftWallWidth + backWallWidth + rightWallWidth + 24} ${Math.max(leftWallHeight, backWallHeight, rightWallHeight) + 16}`" 
+              class="w-full h-80 sm:h-96 rounded-lg bg-slate-900 border border-slate-800 shadow-inner"
+              preserveAspectRatio="xMidYMid meet">
+              
+              <!-- Left Wall -->
+              <g :transform="`translate(4, 8)`">
+                <!-- Wall boundary -->
+                <rect :x="0" :y="0" :width="leftWallWidth" :height="leftWallHeight" fill="#0f172a" stroke="#38bdf8" stroke-width="0.8" />
+                <!-- Tiles inside left wall -->
+                <g :clip-path="`url(#leftWallClip)`" x-html="renderWallTiles(leftWallWidth, leftWallHeight, 'left')"></g>
+                <clipPath id="leftWallClip">
+                  <rect :x="0" :y="0" :width="leftWallWidth" :height="leftWallHeight" />
+                </clipPath>
+              </g>
+
+              <!-- Corner Divider Left-to-Back -->
+              <line 
+                :x1="leftWallWidth + 8" 
+                :y1="4" 
+                :x2="leftWallWidth + 8" 
+                :y2="Math.max(leftWallHeight, backWallHeight) + 12" 
+                stroke="#f43f5e" 
+                stroke-width="1.5" 
+                stroke-dasharray="3,3" 
+              />
+
+              <!-- Back Wall (with Niche cutout) -->
+              <g :transform="`translate(${leftWallWidth + 12}, 8)`">
+                <!-- Wall boundary -->
+                <rect :x="0" :y="0" :width="backWallWidth" :height="backWallHeight" fill="#0f172a" stroke="#818cf8" stroke-width="0.8" />
+                <!-- Tiles inside back wall -->
+                <g :clip-path="`url(#backWallClip)`" x-html="renderWallTiles(backWallWidth, backWallHeight, 'back')"></g>
+                <clipPath id="backWallClip">
+                  <rect :x="0" :y="0" :width="backWallWidth" :height="backWallHeight" />
+                </clipPath>
+
+                <!-- Kerdi 28" x 10" LED Niche Overlay -->
+                <template x-if="nicheEnabled">
+                  <g :transform="`translate(${nicheLeftX}, ${backWallHeight - nicheBottomY - nicheHeight})`">
+                    <rect :x="0" :y="0" :width="nicheWidth" :height="nicheHeight" fill="#fbbf24" fill-opacity="0.25" stroke="#f59e0b" stroke-width="1.5" />
+                    <!-- Mosaic accent preview lines -->
+                    <line :x1="0" :y1="3" :x2="nicheWidth" :y2="3" stroke="#fcd34d" stroke-width="0.5" stroke-dasharray="2,2" />
+                    <line :x1="0" :y1="6" :x2="nicheWidth" :y2="6" stroke="#fcd34d" stroke-width="0.5" stroke-dasharray="2,2" />
+                    <text :x="nicheWidth / 2" :y="nicheHeight / 2 + 1" font-size="3" fill="#fef3c7" font-weight="bold" text-anchor="middle">KERDI LED NICHE (28"×10")</text>
+                  </g>
+                </template>
+              </g>
+
+              <!-- Corner Divider Back-to-Right -->
+              <line 
+                :x1="leftWallWidth + backWallWidth + 16" 
+                :y1="4" 
+                :x2="leftWallWidth + backWallWidth + 16" 
+                :y2="Math.max(backWallHeight, rightWallHeight) + 12" 
+                stroke="#f43f5e" 
+                stroke-width="1.5" 
+                stroke-dasharray="3,3" 
+              />
+
+              <!-- Right Wall -->
+              <g :transform="`translate(${leftWallWidth + backWallWidth + 20}, 8)`">
+                <!-- Wall boundary -->
+                <rect :x="0" :y="0" :width="rightWallWidth" :height="rightWallHeight" fill="#0f172a" stroke="#38bdf8" stroke-width="0.8" />
+                <!-- Tiles inside right wall -->
+                <g :clip-path="`url(#rightWallClip)`" x-html="renderWallTiles(rightWallWidth, rightWallHeight, 'right')"></g>
+                <clipPath id="rightWallClip">
+                  <rect :x="0" :y="0" :width="rightWallWidth" :height="rightWallHeight" />
+                </clipPath>
+              </g>
+
+            </svg>
+
+            <!-- Bottom Baseline (Tub Rim Indicator) -->
+            <div class="w-full flex items-center justify-between text-[11px] text-slate-400 mt-2 px-2 border-t border-slate-800 pt-1">
+              <span>▲ Tub Rim Line (0″ Baseline)</span>
+              <span>Total Surround Span: <strong class="text-slate-200" x-text="(leftWallWidth + backWallWidth + rightWallWidth) + '″'"></strong></span>
+              <span>▲ Top of Tile / Ceiling Union (<span x-text="backWallHeight + '″'"></span>)</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Tile Calculation Summary Box -->
+        <div class="bg-slate-800/90 rounded-xl p-4 border border-slate-700 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+          <div>
+            <span class="text-[10px] uppercase font-bold text-slate-400">Net Wall Area</span>
+            <div class="text-base font-bold text-white" x-text="calcGrossWallSqFt() + ' sq ft'"></div>
+          </div>
+          <div>
+            <span class="text-[10px] uppercase font-bold text-slate-400">With Waste (<span x-text="wastePercent + '%'"></span>)</span>
+            <div class="text-base font-bold text-emerald-400" x-text="calcTotalTileSqFtWithWaste() + ' sq ft'"></div>
+          </div>
+          <div>
+            <span class="text-[10px] uppercase font-bold text-slate-400">Approx. Tile Count</span>
+            <div class="text-base font-bold text-indigo-300" x-text="calcEstimatedTilePieces() + ' tiles'"></div>
+          </div>
+          <div class="flex items-center justify-center">
+            <button @click="applyCalculatedSqftToBOM()" class="w-full py-2 px-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-lg shadow transition">
+              Apply to Material List
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Filter and Search Toolbar for Material List -->
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 no-print">
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <span class="text-xs font-bold text-slate-600">Filter Category:</span>
+        <select x-model="selectedCategory" class="text-xs border border-slate-300 rounded-lg px-2.5 py-1.5 bg-slate-50 focus:ring-2 focus:ring-blue-500 focus:outline-none font-medium">
+          <option value="ALL">All Categories</option>
+          <template x-for="cat in categories" :key="cat">
+            <option :value="cat" x-text="cat"></option>
+          </template>
+        </select>
+      </div>
+      <div class="relative w-full sm:w-72">
+        <input 
+          type="text" 
+          placeholder="Search materials, tools, notes..." 
+          x-model="searchQuery" 
+          class="w-full text-xs pl-8 pr-3 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none font-medium"
+        />
+        <svg class="w-4 h-4 absolute left-2.5 top-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Interactive Material & Equipment Table -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-bold text-slate-800">1. Bill of Materials, Equipment & Consumables</h2>
+          <p class="text-xs text-slate-500">Edit quantities or unit prices directly. Click note/URL icons to attach or modify specifications.</p>
+        </div>
+        <span class="text-xs font-semibold px-2.5 py-1 bg-slate-200 text-slate-700 rounded-full" x-text="filteredItems().length + ' line items'"></span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-slate-100 text-slate-600 font-semibold border-b border-slate-200">
+              <th class="py-3 px-4 w-44">Category</th>
+              <th class="py-3 px-4 min-w-[220px]">Item & Link</th>
+              <th class="py-3 px-4 min-w-[180px]">Specifications / Details</th>
+              <th class="py-3 px-3 w-28 text-center">Qty</th>
+              <th class="py-3 px-3 w-28 text-right">Unit Price ($)</th>
+              <th class="py-3 px-4 w-28 text-right">Total ($)</th>
+              <th class="py-3 px-3 w-24 text-center no-print">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200">
+            <template x-for="(item, index) in filteredItems()" :key="item.id">
+              <tr class="hover:bg-slate-50/80 transition-colors">
+                
+                <!-- Category Badge -->
+                <td class="py-3 px-4 align-top">
+                  <span 
+                    class="inline-block px-2 py-0.5 rounded text-[11px] font-medium border"
+                    :class="{
+                      'bg-sky-50 text-sky-700 border-sky-200': item.category === 'Subfloor & Framing',
+                      'bg-emerald-50 text-emerald-700 border-emerald-200': item.category === 'Drywall & Paint Prep',
+                      'bg-indigo-50 text-indigo-700 border-indigo-200': item.category === 'Waterproofing & Tile',
+                      'bg-amber-50 text-amber-700 border-amber-200': item.category === 'Equipment',
+                      'bg-slate-100 text-slate-700 border-slate-200': item.category === 'Consumables & Protection',
+                      'bg-purple-50 text-purple-700 border-purple-200': !['Subfloor & Framing','Drywall & Paint Prep','Waterproofing & Tile','Equipment','Consumables & Protection'].includes(item.category)
+                    }"
+                    x-text="item.category">
+                  </span>
+                </td>
+
+                <!-- Item Name & URL Indicator -->
+                <td class="py-3 px-4 align-top">
+                  <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                    <span x-text="item.name"></span>
+                    <template x-if="item.url">
+                      <a :href="item.url" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 transition shrink-0" title="Open product link">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                      </a>
+                    </template>
+                  </div>
+                  <template x-if="item.notes">
+                    <p class="text-[11px] text-slate-500 italic mt-0.5 flex items-start gap-1">
+                      <svg class="w-3 h-3 text-slate-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>
+                      <span x-text="item.notes"></span>
+                    </p>
+                  </template>
+                </td>
+
+                <!-- Specification / Description -->
+                <td class="py-3 px-4 text-slate-600 align-top">
+                  <input 
+                    type="text" 
+                    x-model="item.spec" 
+                    @change="saveToStorage()"
+                    class="w-full bg-transparent hover:bg-white focus:bg-white px-1.5 py-0.5 rounded border border-transparent hover:border-slate-300 focus:border-blue-400 focus:outline-none transition"
+                  />
+                </td>
+
+                <!-- Editable Quantity & Unit -->
+                <td class="py-3 px-3 text-center align-top">
+                  <div class="flex items-center justify-center gap-1">
+                    <input 
+                      type="number" 
+                      step="any" 
+                      min="0"
+                      x-model.number="item.qty" 
+                      @input="saveToStorage()" 
+                      class="w-16 text-center font-bold bg-slate-50 hover:bg-white focus:bg-white border border-slate-300 rounded px-1 py-1 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                    />
+                    <span class="text-[10px] text-slate-400 font-medium" x-text="item.unit || 'ea'"></span>
+                  </div>
+                </td>
+
+                <!-- Editable Unit Price -->
+                <td class="py-3 px-3 text-right align-top">
+                  <div class="relative inline-block w-24">
+                    <span class="absolute left-2 top-1 text-slate-400">$</span>
+                    <input 
+                      type="number" 
+                      step="0.01" 
+                      min="0"
+                      x-model.number="item.unitPrice" 
+                      @input="saveToStorage()" 
+                      class="w-full text-right font-bold bg-slate-50 hover:bg-white focus:bg-white border border-slate-300 rounded pl-4 pr-1 py-1 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                    />
+                  </div>
+                </td>
+
+                <!-- Line Item Total -->
+                <td class="py-3 px-4 text-right font-black text-slate-800 align-top" x-text="formatCurrency(item.qty * item.unitPrice)"></td>
+
+                <!-- Action Buttons -->
+                <td class="py-3 px-3 text-center align-top no-print">
+                  <div class="flex items-center justify-center space-x-1.5">
+                    <button 
+                      @click="openEditModal(item)" 
+                      title="Edit details, URL, notes" 
+                      class="p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    </button>
+                    <button 
+                      @click="deleteItem(item.id)" 
+                      title="Remove item" 
+                      class="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </td>
+
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Alternates Section -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 bg-amber-50/60 flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-bold text-amber-950">2. Project Alternates (Priced Separately or Optional)</h2>
+          <p class="text-xs text-amber-700">Check boxes to dynamically include alternates in the current estimate subtotal and tax calculation.</p>
+        </div>
+        <button @click="openNewAlternateModal()" class="text-xs bg-amber-600 hover:bg-amber-700 text-white font-semibold px-3 py-1.5 rounded-lg shadow-sm no-print">
+          + Add Alternate
+        </button>
+      </div>
+
+      <div class="p-6 divide-y divide-slate-100">
+        <template x-for="alt in alternates" :key="alt.id">
+          <div class="py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-start gap-3">
+              <input 
+                type="checkbox" 
+                x-model="alt.selected" 
+                @change="saveToStorage()" 
+                class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded cursor-pointer"
+              />
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-sm text-slate-900" x-text="alt.name"></span>
+                  <template x-if="alt.url">
+                    <a :href="alt.url" target="_blank" class="text-blue-600 hover:underline text-xs flex items-center gap-0.5">
+                      Link <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    </a>
+                  </template>
+                </div>
+                <p class="text-xs text-slate-500 mt-0.5" x-text="alt.spec"></p>
+                <template x-if="alt.notes">
+                  <p class="text-xs text-slate-400 italic mt-0.5" x-text="'Note: ' + alt.notes"></p>
+                </template>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-4 self-end sm:self-center">
+              <div class="text-right">
+                <div class="text-xs text-slate-400">Estimated Cost</div>
+                <div class="flex items-center gap-1">
+                  <span class="text-xs text-slate-400 font-bold">$</span>
+                  <input 
+                    type="number" 
+                    step="0.01" 
+                    x-model.number="alt.cost" 
+                    @input="saveToStorage()" 
+                    class="w-24 text-right text-sm font-bold border border-slate-300 rounded px-1.5 py-0.5 bg-slate-50 focus:bg-white focus:outline-none"
+                  />
+                </div>
+                <div class="text-[10px] text-slate-400 font-medium" x-text="'w/ tax: ' + formatCurrency(alt.cost * (1 + (taxRate / 100)))"></div>
+              </div>
+              <button @click="deleteAlternate(alt.id)" class="text-slate-300 hover:text-rose-500 p-1 no-print">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Technical & Execution Notes -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          3. Technical Execution, Waterproofing & Surface Prep Notes
+        </h2>
+        <span class="text-xs font-semibold px-2 py-0.5 bg-blue-50 text-blue-700 rounded border border-blue-200">Contractor Guidelines</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-600 leading-relaxed">
+        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+          <h3 class="font-bold text-slate-800 mb-1.5 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-blue-500"></span> 24" On-Center Framing
+          </h3>
+          <p>Schluter Kerdi-Board (1/2" thickness) is rated for framing spaced up to 24" o.c. Adhere strictly to fastener spacing. If extra backing is required for the 28" horizontal LED niche or valve rough-in, sister 2x4 framing studs have been included.</p>
+        </div>
+
+        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+          <h3 class="font-bold text-slate-800 mb-1.5 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Oil-Based Paint Adhesion
+          </h3>
+          <p>Painting latex directly over oil base causes peeling. Scuff-sand the walls to dull the sheen, clean dust, and prime with Zinsser B-I-N Shellac-Based Primer to seal old wallpaper paste residue and ensure lasting adhesion.</p>
+        </div>
+
+        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+          <h3 class="font-bold text-slate-800 mb-1.5 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-indigo-500"></span> Tile Leveling System
+          </h3>
+          <p>Use the clip-and-wedge leveling system for the 80 sq. ft. Breeze Blanco III surround to prevent lippage across the 10"x28" horizontal LED niche transitions and corners. Snap clips only after thin-set has fully cured.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Final Cost Summary Box -->
+    <div class="bg-slate-900 text-white rounded-xl p-6 shadow-md">
+      <div class="max-w-md ml-auto space-y-2.5 text-sm">
+        <div class="flex justify-between text-slate-300">
+          <span>Standard Materials & Equipment:</span>
+          <span class="font-semibold text-white" x-text="formatCurrency(calculateSubtotal())"></span>
+        </div>
+        <div class="flex justify-between text-slate-300">
+          <span>Selected Project Alternates:</span>
+          <span class="font-semibold text-white" x-text="formatCurrency(calculateAlternatesSubtotal())"></span>
+        </div>
+        <div class="flex justify-between text-slate-300 border-t border-slate-800 pt-2">
+          <span>Combined Taxable Subtotal:</span>
+          <span class="font-semibold text-white" x-text="formatCurrency(calculateSubtotal() + calculateAlternatesSubtotal())"></span>
+        </div>
+        <div class="flex justify-between text-slate-300">
+          <span x-text="'Washington State Sales Tax (' + taxRate + '%):'"></span>
+          <span class="font-semibold text-emerald-400" x-text="formatCurrency(calculateTax())"></span>
+        </div>
+        <div class="flex justify-between text-base font-bold text-white border-t border-slate-700 pt-3">
+          <span>Total Project Estimate:</span>
+          <span class="text-xl text-blue-400 font-black" x-text="formatCurrency(calculateGrandTotal())"></span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Edit / Add Modal Dialog -->
+  <div 
+    x-show="modalOpen" 
+    x-cloak 
+    class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4"
+    @keydown.escape.window="modalOpen = false">
+    
+    <div 
+      @click.away="modalOpen = false" 
+      class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 transform transition-all">
+      
+      <div class="flex items-center justify-between border-b pb-3 mb-4">
+        <h3 class="text-base font-bold text-slate-900" x-text="isNewItem ? 'Add New Line Item' : 'Edit Item Details'"></h3>
+        <button @click="modalOpen = false" class="text-slate-400 hover:text-slate-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="space-y-3.5 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Category</label>
+          <input type="text" x-model="modalItem.category" placeholder="e.g. Waterproofing & Tile" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Item Name</label>
+          <input type="text" x-model="modalItem.name" placeholder="e.g. Breeze Blanco III Ceramic Tile" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Specifications</label>
+          <input type="text" x-model="modalItem.spec" placeholder="e.g. 80 sqft including 15% waste" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Quantity</label>
+            <input type="number" step="any" x-model.number="modalItem.qty" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Unit</label>
+            <input type="text" x-model="modalItem.unit" placeholder="sqft, pcs, bag" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Unit Price ($)</label>
+            <input type="number" step="0.01" x-model.number="modalItem.unitPrice" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Product URL</label>
+          <input type="url" x-model="modalItem.url" placeholder="https://www.flooranddecor.com/..." class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Custom Notes / Specs</label>
+          <textarea rows="2" x-model="modalItem.notes" placeholder="Special installation or sizing notes..." class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+        </div>
+      </div>
+
+      <div class="mt-5 flex justify-end gap-2 border-t pt-4">
+        <button @click="modalOpen = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition">Cancel</button>
+        <button @click="saveModalItem()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg transition">Save Item</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JavaScript Application Logic -->
+  <script>
+    function estimatorApp() {
+      return {
+        taxRate: 10.7,
+        selectedCategory: 'ALL',
+        searchQuery: '',
+        modalOpen: false,
+        isNewItem: false,
+        modalItem: {},
+
+        // Tile Planner State
+        tilePreset: '4x12',
+        tileWidth: 12,
+        tileHeight: 4,
+        groutWidth: 0.125,
+        pattern: 'horizontal-running-50',
+        leftWallWidth: 32,
+        leftWallHeight: 84,
+        backWallWidth: 60,
+        backWallHeight: 84,
+        rightWallWidth: 32,
+        rightWallHeight: 84,
+        wastePercent: 15,
+        layoutAlignX: 'center',
+
+        // Niche State
+        nicheEnabled: true,
+        nicheWidth: 28,
+        nicheHeight: 10,
+        nicheBottomY: 36, // inches from tub floor
+        nicheLeftX: 16,   // inches from left of back wall
+
+        categories: [
+          'Subfloor & Framing',
+          'Drywall & Paint Prep',
+          'Waterproofing & Tile',
+          'Equipment',
+          'Consumables & Protection'
+        ],
+
+        defaultItems: [
+          { id: 1, category: 'Subfloor & Framing', name: '3/4" T&G Plywood Subfloor Patch', spec: '4\' x 8\' sheet (CDX/OSB)', qty: 1, unit: 'sheet', unitPrice: 50.00, url: '', notes: 'For tub subfloor replacement section' },
+          { id: 2, category: 'Subfloor & Framing', name: 'Subfloor Construction Adhesive', spec: '28 oz cartridge', qty: 1, unit: 'tube', unitPrice: 8.00, url: '', notes: 'Glue subfloor to joists to avoid squeaks' },
+          { id: 3, category: 'Subfloor & Framing', name: 'Structural Subfloor Screws', spec: '3" coarse-thread screws (box)', qty: 1, unit: 'box', unitPrice: 20.00, url: '', notes: '' },
+          { id: 4, category: 'Subfloor & Framing', name: '2x4 Framing Studs', spec: '8\' length (blocking/sistering)', qty: 2, unit: 'pcs', unitPrice: 5.00, url: '', notes: 'Extra backing around niche and 24" o.c. framing' },
+
+          { id: 5, category: 'Drywall & Paint Prep', name: '1/2" Moisture-Resistant Drywall', spec: '4\' x 8\' sheet (Greenboard)', qty: 1, unit: 'sheet', unitPrice: 18.00, url: '', notes: 'For bottom 2\' of 8\' demising wall' },
+          { id: 6, category: 'Drywall & Paint Prep', name: 'All-Purpose Joint Compound', spec: '3.5-gallon bucket', qty: 1, unit: 'bucket', unitPrice: 22.00, url: '', notes: '' },
+          { id: 7, category: 'Drywall & Paint Prep', name: 'Fiberglass Drywall Tape', spec: 'Roll mesh tape', qty: 1, unit: 'roll', unitPrice: 6.00, url: '', notes: '' },
+          { id: 8, category: 'Drywall & Paint Prep', name: 'Wallpaper Stripper Solution', spec: '1-gallon concentrate (DIF)', qty: 1, unit: 'gal', unitPrice: 10.00, url: '', notes: 'Remove wallpaper from remaining wall surface' },
+          { id: 9, category: 'Drywall & Paint Prep', name: 'Wall Texture Spray Can', spec: 'Orange peel / Knockdown', qty: 2, unit: 'cans', unitPrice: 10.00, url: '', notes: 'Match existing wall texture' },
+          { id: 10, category: 'Drywall & Paint Prep', name: 'Zinsser B-I-N Shellac-Based Primer', spec: '1 gallon', qty: 1, unit: 'gal', unitPrice: 65.00, url: '', notes: 'Crucial for sealing old oil-based paint and wallpaper paste' },
+          { id: 11, category: 'Drywall & Paint Prep', name: 'Interior Wall Paint', spec: '1 gallon (Satin/Semi-gloss)', qty: 1, unit: 'gal', unitPrice: 55.00, url: '', notes: 'Bathroom moisture-resistant formulation' },
+
+          { id: 12, category: 'Waterproofing & Tile', name: 'Schluter Kerdi-Board Panel', spec: '1/2" x 48" x 96"', qty: 2, unit: 'sheets', unitPrice: 120.00, url: '', notes: 'Direct tub surround wall panels' },
+          { id: 13, category: 'Waterproofing & Tile', name: 'Thin-Set Mortar', spec: '50 lb bag (Modified/Unmodified)', qty: 2, unit: 'bags', unitPrice: 25.00, url: '', notes: 'For Kerdi band, board joints, and ceramic tile' },
+          { id: 14, category: 'Waterproofing & Tile', name: 'RedGard Liquid Waterproofing', spec: '1 gallon', qty: 1, unit: 'gal', unitPrice: 75.00, url: '', notes: 'For drywall extending up to ceiling union' },
+          { id: 15, category: 'Waterproofing & Tile', name: 'Schluter Kerdi-Band', spec: '5" x 33\' waterproofing strip', qty: 1, unit: 'roll', unitPrice: 35.00, url: '', notes: 'Seals panel unions and drywall transition' },
+          { id: 16, category: 'Waterproofing & Tile', name: 'Schluter Kerdi-Board-SNLT LED Niche', spec: '28" W x 10" H Horizontal w/ Frame', qty: 1, unit: 'ea', unitPrice: 419.32, url: '', notes: 'Pre-fab horizontal niche with built-in LED lighting' },
+          { id: 17, category: 'Waterproofing & Tile', name: 'Breeze Blanco III Ceramic Tile', spec: 'Surround (~80 sq. ft. w/ waste)', qty: 80, unit: 'sqft', unitPrice: 4.29, url: 'https://www.flooranddecor.com/ceramic-tile/breeze-blanco-iii-ceramic-tile-100930908.html?srsltid=AfmBOopnfai65u7dHZjua_I0BpIj6NxcBTAJk-P19qD5nZER5Pz_VgQf', notes: 'Floor & Decor ceramic wall tile' },
+          { id: 18, category: 'Waterproofing & Tile', name: 'Harbour Island Polished Linear Mosaic', spec: 'Niche accent (12" x 12" sheet)', qty: 2, unit: 'sheets', unitPrice: 14.99, url: 'https://www.flooranddecor.com/glass-tile/harbour-island-polished-linear-mosaic-100268952.html', notes: 'Accent tile for inside back of LED niche' },
+          { id: 19, category: 'Waterproofing & Tile', name: 'Schluter Jolly Edge Profile', spec: '8 ft metal edge trim', qty: 3, unit: 'pcs', unitPrice: 18.00, url: '', notes: 'Surround border & niche trim termination' },
+          { id: 20, category: 'Waterproofing & Tile', name: 'Tile Leveling System Kit', spec: 'Clips, wedges & tension pliers', qty: 1, unit: 'kit', unitPrice: 35.00, url: '', notes: 'Ensures lippage-free tile transitions' },
+          { id: 21, category: 'Waterproofing & Tile', name: 'Polymer-Modified Tile Grout', spec: '10 lb bag', qty: 1, unit: 'bag', unitPrice: 30.00, url: '', notes: '' },
+          { id: 22, category: 'Waterproofing & Tile', name: 'Silicone Tub & Tile Caulk', spec: '10.1 oz tube (Color matched)', qty: 2, unit: 'tubes', unitPrice: 10.00, url: '', notes: 'For tub-to-tile joint and inside corners' },
+
+          { id: 23, category: 'Equipment', name: 'Harbor Freight Diamondback 7" Wet Tile Saw', spec: '10 Amp Sliding Table Wet Saw', qty: 1, unit: 'ea', unitPrice: 279.99, url: '', notes: 'Purchase for precise ceramic and glass cuts' },
+
+          { id: 24, category: 'Consumables & Protection', name: 'Heavy-Duty Contractor Trash Bags', spec: '32-count box', qty: 1, unit: 'box', unitPrice: 20.00, url: '', notes: '' },
+          { id: 25, category: 'Consumables & Protection', name: 'Plastic Sheeting / Dust Barrier Film', spec: '100 ft roll', qty: 1, unit: 'roll', unitPrice: 15.00, url: '', notes: 'Contain dust in bathroom work area' },
+          { id: 26, category: 'Consumables & Protection', name: 'Blue Painter\'s Tape', spec: '1.41" multi-pack', qty: 2, unit: 'rolls', unitPrice: 6.00, url: '', notes: '' },
+          { id: 27, category: 'Consumables & Protection', name: 'Disposable Nitrile Gloves', spec: 'Box of 100', qty: 1, unit: 'box', unitPrice: 15.00, url: '', notes: '' },
+          { id: 28, category: 'Consumables & Protection', name: 'Utility Knife & Saw Blades Pack', spec: 'Assorted pack', qty: 1, unit: 'pack', unitPrice: 10.00, url: '', notes: '' },
+          { id: 29, category: 'Consumables & Protection', name: 'Sandpaper & Sanding Sponges', spec: 'Assorted grit pack', qty: 1, unit: 'pack', unitPrice: 12.00, url: '', notes: 'For oil paint scuffing and drywall compound' },
+          { id: 30, category: 'Consumables & Protection', name: 'Tile Installation Hand Tool Set', spec: 'Trowel, float, mixing paddle & sponges', qty: 1, unit: 'set', unitPrice: 35.00, url: '', notes: '' }
+        ],
+
+        defaultAlternates: [
+          { id: 101, name: 'Alternate 1: Shower/Tub Valve Trim Kit', spec: 'Contractor-supplied finish fixture (matte black / brushed nickel)', cost: 150.00, selected: false, url: '', notes: 'Price if homeowner does not supply their own valve trim' },
+          { id: 102, name: 'Alternate 2: NuTone Exhaust Fan / Light Unit', spec: 'Replacement fan/light combo with duct conduit connection', cost: 110.00, selected: false, url: '', notes: 'Upgraded quiet CFM fan and LED light' }
+        ],
+
+        items: [],
+        alternates: [],
+
+        initApp() {
+          const storedItems = localStorage.getItem('remodel_items_v3');
+          const storedAlts = localStorage.getItem('remodel_alts_v3');
+          const storedTax = localStorage.getItem('remodel_tax_v3');
+
+          this.items = storedItems ? JSON.parse(storedItems) : JSON.parse(JSON.stringify(this.defaultItems));
+          this.alternates = storedAlts ? JSON.parse(storedAlts) : JSON.parse(JSON.stringify(this.defaultAlternates));
+          this.taxRate = storedTax !== null ? parseFloat(storedTax) : 10.7;
+        },
+
+        saveToStorage() {
+          localStorage.setItem('remodel_items_v3', JSON.stringify(this.items));
+          localStorage.setItem('remodel_alts_v3', JSON.stringify(this.alternates));
+          localStorage.setItem('remodel_tax_v3', this.taxRate.toString());
+        },
+
+        resetToDefaults() {
+          if (confirm('Reset all items, custom prices, and notes to original project defaults?')) {
+            this.items = JSON.parse(JSON.stringify(this.defaultItems));
+            this.alternates = JSON.parse(JSON.stringify(this.defaultAlternates));
+            this.taxRate = 10.7;
+            this.saveToStorage();
+          }
+        },
+
+        // --- Tile Planner Methods ---
+        applyTilePreset() {
+          if (this.tilePreset === '4x12') { this.tileWidth = 12; this.tileHeight = 4; }
+          else if (this.tilePreset === '3x6') { this.tileWidth = 6; this.tileHeight = 3; }
+          else if (this.tilePreset === '12x24') { this.tileWidth = 24; this.tileHeight = 12; }
+          else if (this.tilePreset === '4x16') { this.tileWidth = 16; this.tileHeight = 4; }
+          else if (this.tilePreset === '6x18') { this.tileWidth = 18; this.tileHeight = 6; }
+          else if (this.tilePreset === '8x8') { this.tileWidth = 8; this.tileHeight = 8; }
+        },
+
+        calcWallSqFt(w, h) {
+          return ((w * h) / 144).toFixed(1);
+        },
+
+        calcGrossWallSqFt() {
+          const totalSqInches = (this.leftWallWidth * this.leftWallHeight) + 
+                                (this.backWallWidth * this.backWallHeight) + 
+                                (this.rightWallWidth * this.rightWallHeight);
+          return (totalSqInches / 144).toFixed(1);
+        },
+
+        calcTotalTileSqFtWithWaste() {
+          const gross = parseFloat(this.calcGrossWallSqFt());
+          const withWaste = gross * (1 + (this.wastePercent / 100));
+          return Math.ceil(withWaste);
+        },
+
+        calcEstimatedTilePieces() {
+          const oneTileSqFt = (this.tileWidth * this.tileHeight) / 144;
+          if (oneTileSqFt <= 0) return 0;
+          return Math.ceil(this.calcTotalTileSqFtWithWaste() / oneTileSqFt);
+        },
+
+        applyCalculatedSqftToBOM() {
+          const targetSqFt = this.calcTotalTileSqFtWithWaste();
+          // Find the Breeze Blanco tile item
+          const tileItem = this.items.find(i => i.name.includes('Breeze Blanco') || (i.category === 'Waterproofing & Tile' && i.unit === 'sqft'));
+          if (tileItem) {
+            tileItem.qty = targetSqFt;
+            tileItem.spec = `Surround (${targetSqFt} sq. ft. w/ ${this.wastePercent}% waste calculated)`;
+            this.saveToStorage();
+            alert(`Updated "${tileItem.name}" quantity to ${targetSqFt} sq ft in your Material List.`);
+          } else {
+            alert(`Calculated total is ${targetSqFt} sq ft. You can add it as a new line item.`);
+          }
+        },
+
+        formatPatternName(p) {
+          const map = {
+            'horizontal-running-50': '50% Brick (Running Bond)',
+            'horizontal-running-33': '1/3 Offset (33% Stagger)',
+            'horizontal-stacked': 'Horizontal Stacked (Grid)',
+            'vertical-stacked': 'Vertical Stacked',
+            'vertical-running-50': 'Vertical 50% Stagger',
+            'herringbone-90': '90° Herringbone'
+          };
+          return map[p] || p;
+        },
+
+        renderWallTiles(wallW, wallH, wallPosition) {
+          let svgHtml = '';
+          const tw = Number(this.tileWidth) || 12;
+          const th = Number(this.tileHeight) || 4;
+          const g = Number(this.groutWidth) || 0.125;
+          const stepX = tw + g;
+          const stepY = th + g;
+
+          const numRows = Math.ceil(wallH / stepY) + 2;
+          const numCols = Math.ceil(wallW / stepX) + 4;
+
+          // Optional center offset
+          let startOffsetX = 0;
+          if (this.layoutAlignX === 'center') {
+            const remainder = wallW % stepX;
+            startOffsetX = (remainder / 2) - stepX;
+          }
+
+          if (this.pattern === 'herringbone-90') {
+            // Render interlocking 90-deg herringbone units
+            const unitSize = tw + th + (g * 2);
+            for (let y = -unitSize; y < wallH + unitSize; y += th + g) {
+              for (let x = -unitSize; x < wallW + unitSize; x += tw + g) {
+                const isEven = Math.floor(y / (th + g)) % 2 === 0;
+                if (isEven) {
+                  svgHtml += `<rect x="${x}" y="${y}" width="${tw}" height="${th}" fill="#e2e8f0" stroke="#64748b" stroke-width="0.3" rx="0.2" />`;
+                } else {
+                  svgHtml += `<rect x="${x}" y="${y}" width="${th}" height="${tw}" fill="#f1f5f9" stroke="#64748b" stroke-width="0.3" rx="0.2" />`;
+                }
+              }
+            }
+            return svgHtml;
+          }
+
+          // Row by row rendering from tub bottom (y = wallH) up to top (y = 0)
+          for (let row = 0; row < numRows; row++) {
+            const y = wallH - ((row + 1) * stepY);
+            
+            let rowOffsetX = startOffsetX;
+            if (this.pattern === 'horizontal-running-50') {
+              if (row % 2 === 1) rowOffsetX += (stepX / 2);
+            } else if (this.pattern === 'horizontal-running-33') {
+              rowOffsetX += (row % 3) * (stepX / 3);
+            } else if (this.pattern === 'vertical-running-50') {
+              rowOffsetX += (row % 2) * (stepX / 2);
+            }
+
+            for (let col = -2; col < numCols; col++) {
+              const x = (col * stepX) + rowOffsetX;
+              
+              if (this.pattern.startsWith('vertical')) {
+                // Flipped orientation
+                svgHtml += `<rect x="${x}" y="${y}" width="${th}" height="${tw}" fill="#f8fafc" stroke="#475569" stroke-width="0.35" rx="0.3" />`;
+              } else {
+                // Standard horizontal
+                svgHtml += `<rect x="${x}" y="${y}" width="${tw}" height="${th}" fill="#f8fafc" stroke="#475569" stroke-width="0.35" rx="0.3" />`;
+              }
+            }
+          }
+
+          return svgHtml;
+        },
+
+        // --- Filter & Calculation Methods ---
+        filteredItems() {
+          return this.items.filter(item => {
+            const matchesCat = this.selectedCategory === 'ALL' || item.category === this.selectedCategory;
+            const q = this.searchQuery.toLowerCase().trim();
+            const matchesSearch = !q || 
+              item.name.toLowerCase().includes(q) || 
+              item.spec.toLowerCase().includes(q) || 
+              (item.notes && item.notes.toLowerCase().includes(q));
+            return matchesCat && matchesSearch;
+          });
+        },
+
+        calculateSubtotal() {
+          return this.items.reduce((sum, item) => sum + ((Number(item.qty) || 0) * (Number(item.unitPrice) || 0)), 0);
+        },
+
+        calculateAlternatesSubtotal() {
+          return this.alternates
+            .filter(alt => alt.selected)
+            .reduce((sum, alt) => sum + (Number(alt.cost) || 0), 0);
+        },
+
+        calculateTax() {
+          const totalTaxable = this.calculateSubtotal() + this.calculateAlternatesSubtotal();
+          return totalTaxable * ((Number(this.taxRate) || 0) / 100);
+        },
+
+        calculateGrandTotal() {
+          return this.calculateSubtotal() + this.calculateAlternatesSubtotal() + this.calculateTax();
+        },
+
+        formatCurrency(val) {
+          return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val || 0);
+        },
+
+        // --- Modal CRUD ---
+        openNewItemModal() {
+          this.isNewItem = true;
+          this.modalItem = {
+            id: Date.now(),
+            category: this.selectedCategory !== 'ALL' ? this.selectedCategory : 'Waterproofing & Tile',
+            name: '',
+            spec: '',
+            qty: 1,
+            unit: 'ea',
+            unitPrice: 0,
+            url: '',
+            notes: ''
+          };
+          this.modalOpen = true;
+        },
+
+        openEditModal(item) {
+          this.isNewItem = false;
+          this.modalItem = JSON.parse(JSON.stringify(item));
+          this.modalOpen = true;
+        },
+
+        saveModalItem() {
+          if (!this.modalItem.name.trim()) {
+            alert('Please enter an item name.');
+            return;
+          }
+          if (this.isNewItem) {
+            this.items.push(this.modalItem);
+          } else {
+            const idx = this.items.findIndex(i => i.id === this.modalItem.id);
+            if (idx !== -1) {
+              this.items[idx] = JSON.parse(JSON.stringify(this.modalItem));
+            }
+          }
+          this.saveToStorage();
+          this.modalOpen = false;
+        },
+
+        deleteItem(id) {
+          if (confirm('Remove this line item from the estimate?')) {
+            this.items = this.items.filter(item => item.id !== id);
+            this.saveToStorage();
+          }
+        },
+
+        openNewAlternateModal() {
+          const name = prompt('Enter alternate title:');
+          if (name) {
+            const cost = parseFloat(prompt('Enter estimated cost ($):', '100')) || 0;
+            this.alternates.push({
+              id: Date.now(),
+              name: name,
+              spec: 'Optional project addition',
+              cost: cost,
+              selected: false,
+              url: '',
+              notes: ''
+            });
+            this.saveToStorage();
+          }
+        },
+
+        deleteAlternate(id) {
+          this.alternates = this.alternates.filter(a => a.id !== id);
+          this.saveToStorage();
+        }
+      };
+    }
+  </script>
+</body>
+</html>
